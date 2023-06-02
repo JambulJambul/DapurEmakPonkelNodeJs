@@ -29,9 +29,9 @@ app.post('/payment', async (req, res) => {
 
     // Create Midtrans transaction token
     const { redirect_url } = await snap.createTransaction(paymentOptions);
-
+    console.log('Redirect URL:', redirect_url);
     // Return the redirect URL to Flutter app
-    res.json({ redirectUrl: redirect_url });
+    res.status(200).json({ redirectUrl: redirect_url});
   } catch (error) {
     console.error('Error processing payment:', error);
     res.status(500).json({ error: 'Payment processing failed' });
