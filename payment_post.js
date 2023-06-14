@@ -38,6 +38,51 @@ app.post('/payment', async (req, res) => {
   }
 });
 
+app.get('/payment/callback', (req, res) => {
+  try {
+    // Handle the successful payment callback
+    // Perform necessary actions (e.g., update payment status, retrieve transaction details, etc.)
+    
+    // Get the transaction details from the request query parameters
+    const {
+      status_code,
+      status_message,
+      transaction_id,
+      masked_card,
+      order_id,
+      payment_type,
+      transaction_time,
+      transaction_status,
+      fraud_status,
+      bank,
+      gross_amount
+    } = req.query;
+
+    // Log the transaction details
+    console.log('Payment Callback - Transaction Details:');
+    console.log('Status Code:', status_code);
+    console.log('Status Message:', status_message);
+    console.log('Transaction ID:', transaction_id);
+    console.log('Masked Card:', masked_card);
+    console.log('Order ID:', order_id);
+    console.log('Payment Type:', payment_type);
+    console.log('Transaction Time:', transaction_time);
+    console.log('Transaction Status:', transaction_status);
+    console.log('Fraud Status:', fraud_status);
+    console.log('Bank:', bank);
+    console.log('Gross Amount:', gross_amount);
+
+    // Perform necessary actions (e.g., update payment status, retrieve transaction details, etc.)
+    // ...
+
+    // Redirect the user back to the Flutter app
+    res.redirect('https://dapuremakponkel.page.link/orderHistory');
+  } catch (error) {
+    console.error('Error processing payment callback:', error);
+    res.status(500).json({ error: 'Error processing payment callback' });
+  }
+});
+
 // Start the server
 const port = 3000; // Replace with your desired port number
 app.listen(port, () => {
