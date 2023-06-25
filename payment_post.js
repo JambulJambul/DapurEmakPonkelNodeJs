@@ -2,15 +2,26 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const midtransClient = require('midtrans-client');
+var admin = require("firebase-admin");
+
+var serviceAccount = require("C:/Users/hilma/Documents/UTM/Semester 8/Skripsi/DapurEmakPonkelNodeJS/DapurEmakPonkelNodeJs/dapuremakponkel-2c750-firebase-adminsdk-v72ch-675dc6f209.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 // Configure body-parser middleware to parse JSON
 app.use(bodyParser.json());
+
+let temporaryData;
 
 // Create a route to handle the payment request
 app.post('/payment', async (req, res) => {
   try {
     // Retrieve payment data from the request body
-    const { orderId, amount } = req.body;
+    const { orderId, amount, uid, deliveryDate, cartItems, paymentType } = req.body;
 
     // Initialize Midtrans client
     const snap = new midtransClient.Snap({
@@ -27,11 +38,15 @@ app.post('/payment', async (req, res) => {
       }
     };
 
+    temporaryData = {
+      orderId, amount, uid, deliveryDate, cartItems, paymentType
+    };
+
     // Create Midtrans transaction token
     const { redirect_url } = await snap.createTransaction(paymentOptions);
     console.log('Redirect URL:', redirect_url);
     // Return the redirect URL to Flutter app
-    res.status(200).json({ redirectUrl: redirect_url});
+    res.status(200).json({ redirectUrl: redirect_url });
   } catch (error) {
     console.error('Error processing payment:', error);
     res.status(500).json({ error: 'Payment processing failed' });
@@ -42,7 +57,7 @@ app.get('/payment/callback', (req, res) => {
   try {
     // Handle the successful payment callback
     // Perform necessary actions (e.g., update payment status, retrieve transaction details, etc.)
-    
+
     // Get the transaction details from the request query parameters
     const {
       status_code,
@@ -76,6 +91,18 @@ app.get('/payment/callback', (req, res) => {
     // ...
 
     // Redirect the user back to the Flutter app
+    const paymentData = {
+      order_id,
+    };
+
+    db.collection('payment')
+      .add(temporaryData)
+      .then((docRef) => {
+        console.log('Payment data stored with ID:', docRef.id);
+      })
+      .catch((error) => {
+        console.error('Error storing payment data:', error);
+      });
     res.redirect('https://dapuremakponkel.page.link/orderHistory');
   } catch (error) {
     console.error('Error processing payment callback:', error);
