@@ -2,13 +2,10 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const midtransClient = require('midtrans-client');
+const functions = require("firebase-functions")
 var admin = require("firebase-admin");
 
-var serviceAccount = require("C:/Users/hilma/Documents/UTM/Semester 8/Skripsi/DapurEmakPonkelNodeJS/DapurEmakPonkelNodeJs/dapuremakponkel-2c750-firebase-adminsdk-v72ch-675dc6f209.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+admin.initializeApp();
 
 const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true })
@@ -114,8 +111,4 @@ app.get('/payment/callback', (req, res) => {
   }
 });
 
-// Start the server
-const port = 3000; // Replace with your desired port number
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+exports.api = functions.https.onRequest(app)
