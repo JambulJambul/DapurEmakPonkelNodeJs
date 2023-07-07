@@ -96,6 +96,10 @@ app.get('/payment/callback', (req, res) => {
       delete temporaryData.numberOfDays;
     }
 
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     db.collection('payment')
       .add(temporaryData)
       .then((docRef) => {
